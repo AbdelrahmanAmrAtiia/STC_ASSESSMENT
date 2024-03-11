@@ -1,0 +1,31 @@
+public class ReverseSubString {
+
+    public static String reverseString(String input) {
+        int startIndex = -1;
+        char[] stringChars = input.toCharArray();
+        for (int i = 0; i < input.length(); i++) {
+            if (stringChars[i] == '(') {
+                startIndex = i;
+            } else if (stringChars[i] == ')') {
+                input = reverseBetweenParentheses(input, startIndex, i);
+            }
+        }
+        return input;
+    }
+
+    private static String reverseBetweenParentheses(String input, int startIndex, int endIndex) {
+        String substringBetweenParentheses = input.substring(startIndex + 1, endIndex);
+        StringBuilder s = new StringBuilder(substringBetweenParentheses);
+        s.reverse();
+        input = input.replace(input.substring(startIndex + 1, endIndex), s);
+        return input;
+    }
+}
+
+
+############################### Test Cases 
+ReverseSubString.reverseString("abd(jnb)asdf")
+ReverseSubString.reverseString("abdjnbasdf")
+ReverseSubString.reverseString("dd(df)a(ghhh)")
+ReverseSubString.reverseString("dd)d(a(ghhh)")
+ReverseSubString.reverseString("dd)d(a(ghhh")
