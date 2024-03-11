@@ -8,6 +8,7 @@ import com.stc.system.management.enums.ItemTypeEnum;
 import com.stc.system.management.enums.PermissionLevelEnum;
 import com.stc.system.management.exception.EntityNotFoundException;
 import com.stc.system.management.exception.PermissionNotAllowedException;
+import com.stc.system.management.projection.FileMetadataProjection;
 import com.stc.system.management.repo.FileRepo;
 import com.stc.system.management.repo.ItemRepo;
 import com.stc.system.management.repo.PermissionGroupRepo;
@@ -71,6 +72,7 @@ public class SystemManagementService {
         Item item = new Item();
         item.setType(ItemTypeEnum.FILE);
         item.setName(fileName);
+        item.setPermissionGroup(parent.getPermissionGroup());
         item.setParent(parent);
 
         if (!checkEditPermission(parent)) {
@@ -89,7 +91,7 @@ public class SystemManagementService {
 
             boolean hasAccess = checkFileAccess();
             if (!hasAccess) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+                throw new PermissionNotAllowedException();
             }
 
             byte[] fileContent = file.getFileBinary();
@@ -105,8 +107,9 @@ public class SystemManagementService {
         }
     }
 
-    public ResponseModel viewFiles() {
-        return null;
+    public ResponseModel viewFiles(Long fileId) {
+        FileMetadataProjection fileMetaData = getFileRepo().getFileMetadata(fileId);
+        return new ResponseModel(HttpStatus.OK, "File Returned Successfully", "0", fileMetaData);
     }
 
     private boolean checkEditPermission(Item item) {

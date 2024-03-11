@@ -1,5 +1,6 @@
 package com.stc.system.management.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class PermissionGroup {
 
     @OneToMany()
     @JoinColumn(name = "permission_group_id")
+    @JsonBackReference
     private List<Permission> permissions;
 
 }

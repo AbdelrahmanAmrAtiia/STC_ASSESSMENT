@@ -33,9 +33,9 @@ public class SystemManagementController {
         return getSystemManagementService().createFile(file, fileName, parentId);
     }
 
-    @GetMapping("/file/metaData")
-    public ResponseModel viewFiles() {
-        return getSystemManagementService().viewFiles();
+    @GetMapping("/file/{fileId}/metaData")
+    public ResponseModel viewFiles(@PathVariable("fileId") Long fileId) {
+        return getSystemManagementService().viewFiles(fileId);
     }
 
     @GetMapping("/file/{fileId}/download")
