@@ -21,7 +21,7 @@ public class PermissionGroup {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "permission_group_seq")
     private Long id;
 
-    @Column(name = "group_name")
+    @Column(name = "group_name", unique = true)
     private String groupName;
 
     @OneToMany()

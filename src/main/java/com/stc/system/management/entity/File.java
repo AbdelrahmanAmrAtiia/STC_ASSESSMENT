@@ -1,5 +1,6 @@
 package com.stc.system.management.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,8 +22,9 @@ public class File {
 
     @Lob
     @Column(nullable = false)
-    private String fileBinary;
+    private byte[] fileBinary;
 
+    @JsonBackReference
     @OneToOne
     @JoinColumn(name = "item_id")
     private Item item;

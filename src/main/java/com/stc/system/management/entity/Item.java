@@ -1,5 +1,6 @@
 package com.stc.system.management.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stc.system.management.enums.ItemTypeEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,4 +31,8 @@ public class Item {
     @JoinColumn(name = "permission_group_id")
     private PermissionGroup permissionGroup;
 
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Item parent;
 }
