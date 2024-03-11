@@ -6,6 +6,8 @@ import com.stc.system.management.entity.Item;
 import com.stc.system.management.entity.Permission;
 import com.stc.system.management.enums.ItemTypeEnum;
 import com.stc.system.management.enums.PermissionLevelEnum;
+import com.stc.system.management.exception.EntityNotFoundException;
+import com.stc.system.management.exception.PermissionNotAllowedException;
 import com.stc.system.management.repo.FileRepo;
 import com.stc.system.management.repo.ItemRepo;
 import com.stc.system.management.repo.PermissionGroupRepo;
@@ -52,13 +54,10 @@ public class SystemManagementService {
     }
 
     public ResponseModel createFolder(Item item) {
-        Item space = getItemRepo().findById(item.getParent().getId()).orElse(null);
-        if(space == null){
-            return new ResponseModel(HttpStatus.BAD_REQUEST, "Space not found", "1", null);
-        }
+        Item space = getItemRepo().findById(item.getParent().getId()).orElseThrow( () -> new EntityNotFoundException("Space"));
 
         if (!checkEditPermission(space)) {
-            return new ResponseModel(HttpStatus.BAD_REQUEST, "Action Not Allowed", "1", null);
+            throw new PermissionNotAllowedException();
         }
         item.setParent(space);
         item.setType(ItemTypeEnum.FOLDER);
@@ -67,10 +66,7 @@ public class SystemManagementService {
     }
 
     public ResponseModel createFile(MultipartFile file, String fileName, Long parentId) {
-        Item parent = getItemRepo().findById(parentId).orElse(null);
-        if(parent == null){
-            return new ResponseModel(HttpStatus.BAD_REQUEST, "Parent not found", "1", null);
-        }
+        Item parent = getItemRepo().findById(parentId).orElseThrow( () -> new EntityNotFoundException("Parent"));
 
         Item item = new Item();
         item.setType(ItemTypeEnum.FILE);
@@ -78,7 +74,7 @@ public class SystemManagementService {
         item.setParent(parent);
 
         if (!checkEditPermission(parent)) {
-            return new ResponseModel(HttpStatus.BAD_REQUEST, "Action Not Allowed", "1", null);
+            throw new PermissionNotAllowedException();
         }
 
         Item savedItem = getItemRepo().save(item);
@@ -113,10 +109,10 @@ public class SystemManagementService {
         return null;
     }
 
-    private boolean checkEditPermission(Item space) {
-        List<Permission> permissionList = getPermissionRepo().findByPermissionGroupId(space.getPermissionGroup().getId());
-        if(permissionList != null && !permissionList.isEmpty()){
-            if(permissionList.stream().anyMatch(permission -> PermissionLevelEnum.EDIT.equals(permission.getLevel()))){
+    private boolean checkEditPermission(Item item) {
+        List<Permission> permissionList = getPermissionRepo().findByPermissionGroupId(item.getPermissionGroup().getId());
+        if (permissionList != null && !permissionList.isEmpty()) {
+            if (permissionList.stream().anyMatch(permission -> PermissionLevelEnum.EDIT.equals(permission.getLevel()))) {
                 return true;
             }
         }
@@ -133,6 +129,7 @@ public class SystemManagementService {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     private boolean checkFileAccess() {
         return true;
     }
