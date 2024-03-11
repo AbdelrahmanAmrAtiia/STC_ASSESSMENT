@@ -33,10 +33,13 @@ public class SystemManagementController {
         return getSystemManagementService().createFile(file, fileName, parentId);
     }
 
+    @GetMapping("/file/metaData")
+    public ResponseModel viewFiles() {
+        return getSystemManagementService().viewFiles();
+    }
+
     @GetMapping("/file/{fileId}/download")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileId") Long fileId) {
         return getSystemManagementService().downloadFile(fileId);
     }
-
-
 }

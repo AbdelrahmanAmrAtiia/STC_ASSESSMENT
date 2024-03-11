@@ -3,7 +3,9 @@ package com.stc.system.management.service;
 import com.stc.system.management.Vo.ResponseModel;
 import com.stc.system.management.entity.File;
 import com.stc.system.management.entity.Item;
+import com.stc.system.management.entity.Permission;
 import com.stc.system.management.enums.ItemTypeEnum;
+import com.stc.system.management.enums.PermissionLevelEnum;
 import com.stc.system.management.repo.FileRepo;
 import com.stc.system.management.repo.ItemRepo;
 import com.stc.system.management.repo.PermissionGroupRepo;
@@ -18,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 @Getter
@@ -54,7 +58,7 @@ public class SystemManagementService {
         }
 
         if (!checkEditPermission(space)) {
-            throw new RuntimeException("You do not have permission to create a folder in this space");
+            return new ResponseModel(HttpStatus.BAD_REQUEST, "Action Not Allowed", "1", null);
         }
         item.setParent(space);
         item.setType(ItemTypeEnum.FOLDER);
@@ -74,7 +78,7 @@ public class SystemManagementService {
         item.setParent(parent);
 
         if (!checkEditPermission(parent)) {
-            throw new RuntimeException("You do not have permission to upload a file in this parent");
+            return new ResponseModel(HttpStatus.BAD_REQUEST, "Action Not Allowed", "1", null);
         }
 
         Item savedItem = getItemRepo().save(item);
@@ -105,8 +109,18 @@ public class SystemManagementService {
         }
     }
 
+    public ResponseModel viewFiles() {
+        return null;
+    }
+
     private boolean checkEditPermission(Item space) {
-        return true;
+        List<Permission> permissionList = getPermissionRepo().findByPermissionGroupId(space.getPermissionGroup().getId());
+        if(permissionList != null && !permissionList.isEmpty()){
+            if(permissionList.stream().anyMatch(permission -> PermissionLevelEnum.EDIT.equals(permission.getLevel()))){
+                return true;
+            }
+        }
+        return false;
     }
 
     private void saveFile(MultipartFile file, Item item) {
